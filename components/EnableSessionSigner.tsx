@@ -8,15 +8,15 @@ interface EnableSessionSignerProps {
   wallet: WalletWithMetadata;
 }
 
-export default function EnableSessionSigner({ wallet }: EnableSessionSignerProps) {
+export default function EnableSessionSigner({
+  wallet,
+}: EnableSessionSignerProps) {
   const { addSessionSigners } = useSessionSigners();
   const [isLoading, setIsLoading] = useState(false);
 
   const isDelegated = wallet.delegated === true;
 
   const handleEnableSessionSigner = async () => {
-    console.log("embeddedWallet", wallet);
-
     setIsLoading(true);
     try {
       await addSessionSigners({
@@ -39,8 +39,8 @@ export default function EnableSessionSigner({ wallet }: EnableSessionSignerProps
   const isDisabled = isLoading || isDelegated;
 
   return (
-    <Button 
-      onClick={handleEnableSessionSigner} 
+    <Button
+      onClick={handleEnableSessionSigner}
       disabled={isDisabled}
       className="w-48"
     >
