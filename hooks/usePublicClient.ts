@@ -25,19 +25,19 @@ export function usePublicClient() {
         
         // Only switch chain if needed
         await wallet.switchChain(defaultChain.id);
-        
+
         const provider = await wallet.getEthereumProvider();
-        
+
         // Create client only if it doesn't exist or provider changed
         if (!clientRef.current) {
           const newClient = createPublicClient({
             chain: defaultChain,
             transport: custom(provider),
           });
-          
+
           clientRef.current = newClient;
           setClient(newClient);
-          
+
           // Set up block watching for real-time updates
           const unsubscribe = newClient.watchBlocks({
             onBlock: (block) => {
@@ -47,10 +47,8 @@ export function usePublicClient() {
               console.error("Block subscription error:", error);
             },
             emitOnBegin: true,
-            poll: true,
-            pollingInterval: 12_000, // 12 seconds
           });
-          
+
           unsubscribeRef.current = unsubscribe;
         }
       } catch (error) {

@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Loader2 } from "lucide-react";
 import { counterAbi } from "@/lib/counterAbi";
 import { usePublicClient } from "@/hooks/usePublicClient";
 import { useCounterTransaction } from "@/hooks/useCounterTransaction";
 
 export default function Counter() {
   const [count, setCount] = useState<bigint>(BigInt(0));
+  const [activeAction, setActiveAction] = useState<"increment" | "decrement" | null>(null);
   const { client, blockNumber, isReady } = usePublicClient();
   const { execute, isLoading, isDelegated } = useCounterTransaction();
   const contractAddress = process.env
@@ -34,11 +35,21 @@ export default function Counter() {
   }, [client, contractAddress, blockNumber]); // Re-read when block changes
 
   const handleIncrement = async () => {
-    await execute("increment");
+    setActiveAction("increment");
+    try {
+      await execute("increment");
+    } finally {
+      setActiveAction(null);
+    }
   };
 
   const handleDecrement = async () => {
-    await execute("decrement");
+    setActiveAction("decrement");
+    try {
+      await execute("decrement");
+    } finally {
+      setActiveAction(null);
+    }
   };
 
   if (!isReady) return <div>Loading...</div>;
@@ -53,7 +64,11 @@ export default function Counter() {
           variant="outline"
           disabled={isLoading}
         >
-          <Minus className="h-4 w-4" />
+          {activeAction === "decrement" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Minus className="h-4 w-4" />
+          )}
         </Button>
 
         <div className="text-2xl font-semibold min-w-[3rem] text-center">
@@ -66,7 +81,11 @@ export default function Counter() {
           variant="outline"
           disabled={isLoading}
         >
-          <Plus className="h-4 w-4" />
+          {activeAction === "increment" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
         </Button>
       </div>
       

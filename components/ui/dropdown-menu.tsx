@@ -69,7 +69,8 @@ function DropdownMenuItem({
   variant?: "default" | "destructive"
 }) {
   // Filter out isActive prop to prevent React warning
-  const { isActive, ...filteredProps } = props as any;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isActive, ...filteredProps } = props as Record<string, unknown>;
   
   return (
     <DropdownMenuPrimitive.Item

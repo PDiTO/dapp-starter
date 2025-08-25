@@ -16,6 +16,8 @@ const privy = new PrivyClient(
 );
 
 export async function POST(request: NextRequest) {
+  const requestStart = Date.now();
+
   try {
     // Parse request body
     const { action, walletId, contractAddress } = await request.json();
@@ -29,10 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (action !== "increment" && action !== "decrement") {
-      return NextResponse.json(
-        { message: "Invalid action" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Invalid action" }, { status: 400 });
     }
 
     // Check if session signer is configured
@@ -53,11 +52,7 @@ export async function POST(request: NextRequest) {
     const defaultChain = getDefaultChain();
     const caip2 = `eip155:${defaultChain.id}` as `eip155:${string}`;
 
-    console.log(`Executing ${action} on contract ${contractAddress} via session signer`);
-
     // Send transaction using Privy's server SDK
-    // Note: This requires the session signer to be properly configured
-    // with the private key on the server side
     const response = await privy.walletApi.ethereum.sendTransaction({
       walletId,
       caip2,
@@ -66,9 +61,8 @@ export async function POST(request: NextRequest) {
         data,
         chainId: defaultChain.id,
       },
+      // sponsor: true, // Uncomment if you have gas sponsorship configured
     });
-
-    console.log(`Transaction sent successfully: ${response.hash}`);
 
     return NextResponse.json({
       hash: response.hash,
@@ -76,7 +70,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Failed to execute counter transaction:", error);
-    
+
     // Handle specific Privy errors
     if (error instanceof Error) {
       if (error.message.includes("authorization")) {

@@ -22,11 +22,14 @@ export function useCounterTransaction() {
     }
 
     setIsLoading(true);
+    const toastId = toast.loading(`Submitting ${action} transaction...`);
 
     try {
+      let hash: string;
+      
       if (isDelegated && walletMetadata) {
         // Session signer mode - send to backend
-        console.log(`Using session signer for ${action}`);
+        toast.loading("Processing with session signer...", { id: toastId });
         
         const response = await fetch("/api/counter", {
           method: "POST",
@@ -45,29 +48,35 @@ export function useCounterTransaction() {
           throw new Error(error.message || `Failed to ${action} counter`);
         }
 
-        const { hash } = await response.json();
-        toast.success(`Counter ${action}ed! Tx: ${hash.slice(0, 10)}...`);
-        return hash;
+        const result = await response.json();
+        hash = result.hash;
       } else {
         // Non-delegated mode - client-side transaction with user approval
-        console.log(`Using client-side transaction for ${action}`);
+        toast.loading("Waiting for wallet approval...", { id: toastId });
         
         const data = encodeFunctionData({
           abi: counterAbi,
           functionName: action,
         });
 
-        const { hash } = await sendTransaction({
+        const result = await sendTransaction({
           to: contractAddress,
           data,
         });
-
-        toast.success(`Counter ${action}ed! Tx: ${hash.slice(0, 10)}...`);
-        return hash;
+        hash = result.hash;
       }
+
+      // Show success with transaction hash
+      toast.success(`Counter ${action}ed!`, { 
+        id: toastId,
+        description: `Tx: ${hash.slice(0, 10)}...${hash.slice(-8)}` 
+      });
+      
+      return hash;
     } catch (error) {
       console.error(`Failed to ${action} counter:`, error);
-      toast.error(`Failed to ${action} counter`);
+      const errorMessage = error instanceof Error ? error.message : `Failed to ${action} counter`;
+      toast.error(errorMessage, { id: toastId });
       throw error;
     } finally {
       setIsLoading(false);
