@@ -3,7 +3,7 @@
 import { PrivyProvider } from "@privy-io/react-auth";
 import { getDefaultChain, getSupportedChains } from "@/lib/chains";
 
-import AutoEnableSessionSigner from "@/components/AutoEnableSessionSigner";
+import AutoEnableSessionSigner from "@/components/SessionSigners/AutoEnableSessionSigner";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

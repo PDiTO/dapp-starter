@@ -1,30 +1,27 @@
 "use client";
 
+// This component is used to auto-enable the session signer for the wallet
+
 import { useEffect } from "react";
-import { usePrivy, WalletWithMetadata } from "@privy-io/react-auth";
 import { useSessionSigners } from "@privy-io/react-auth";
+import { useEmbeddedWallet } from "@/hooks/useEmbeddedWallet";
 
 export default function AutoEnableSessionSigner() {
-  const { user, ready } = usePrivy();
+  const { walletMetadata, isReady, isDelegated } = useEmbeddedWallet();
   const { addSessionSigners } = useSessionSigners();
 
   useEffect(() => {
     const enableSessionSigner = async () => {
-      if (!ready || !user) return;
+      if (!isReady || !walletMetadata) return;
 
-      const embeddedWallet = user.linkedAccounts.find(
-        (wallet): wallet is WalletWithMetadata =>
-          wallet.type === "wallet" &&
-          wallet.walletClientType === "privy" &&
-          wallet.connectorType === "embedded"
-      );
-
-      // Only enable if wallet exists and is not already delegated
-      if (embeddedWallet && !embeddedWallet.delegated) {
+      if (!isDelegated) {
         try {
-          console.log("Auto-enabling session signer for wallet:", embeddedWallet.address);
+          console.log(
+            "Auto-enabling session signer for wallet:",
+            walletMetadata.address
+          );
           await addSessionSigners({
-            address: embeddedWallet.address,
+            address: walletMetadata.address,
             signers: [
               {
                 signerId: process.env.NEXT_PUBLIC_PRIVY_SESSION_SIGNER_ID!,
@@ -40,7 +37,7 @@ export default function AutoEnableSessionSigner() {
     };
 
     enableSessionSigner();
-  }, [ready, user, addSessionSigners]);
+  }, [isReady, walletMetadata, isDelegated, addSessionSigners]);
 
   return null; // This component doesn't render anything
 }

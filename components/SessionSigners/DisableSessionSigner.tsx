@@ -1,24 +1,24 @@
 "use client";
 
+// This component is used to disable the session signer for the wallet
+
 import { useState } from "react";
-import { WalletWithMetadata, useSessionSigners } from "@privy-io/react-auth";
+import { useSessionSigners } from "@privy-io/react-auth";
 import { Button } from "@/components/ui/button";
+import { useEmbeddedWallet } from "@/hooks/useEmbeddedWallet";
 
-interface DisableSessionSignerProps {
-  wallet: WalletWithMetadata;
-}
-
-export default function DisableSessionSigner({ wallet }: DisableSessionSignerProps) {
+export default function DisableSessionSigner() {
+  const { walletMetadata, isDelegated } = useEmbeddedWallet();
   const { removeSessionSigners } = useSessionSigners();
   const [isLoading, setIsLoading] = useState(false);
 
-  const isDelegated = wallet.delegated === true;
-
   const handleDisableSessionSigner = async () => {
+    if (!walletMetadata) return;
+
     setIsLoading(true);
     try {
       await removeSessionSigners({
-        address: wallet.address,
+        address: walletMetadata.address,
       });
       console.log("Session signer removed successfully");
     } catch (error) {
@@ -31,8 +31,8 @@ export default function DisableSessionSigner({ wallet }: DisableSessionSignerPro
   const isDisabled = isLoading || !isDelegated;
 
   return (
-    <Button 
-      onClick={handleDisableSessionSigner} 
+    <Button
+      onClick={handleDisableSessionSigner}
       disabled={isDisabled}
       className="w-48"
     >

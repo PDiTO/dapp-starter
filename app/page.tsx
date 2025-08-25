@@ -3,7 +3,7 @@
 import { usePrivy } from "@privy-io/react-auth";
 
 import Counter from "@/components/Counter";
-import SessionSigners from "@/components/SessionSigners";
+import SessionSigners from "@/components/SessionSigners/SessionSigners";
 
 export default function Home() {
   const { ready: privyReady, authenticated } = usePrivy();
@@ -33,7 +33,6 @@ export default function Home() {
     <div className="flex-1 flex items-center justify-center">
       <div className="flex flex-col items-center gap-6">
         <Counter />
-        <SessionSigners />
       </div>
     </div>
   );

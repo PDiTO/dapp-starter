@@ -1,24 +1,19 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from "lucide-react";
 import { createPublicClient, custom } from "viem";
 import { counterAbi } from "@/lib/counterAbi";
-import { useWallets } from "@privy-io/react-auth";
+import { useEmbeddedWallet } from "@/hooks/useEmbeddedWallet";
 import { getDefaultChain } from "@/lib/chains";
 
 export default function Counter() {
   const [count, setCount] = useState<bigint>(BigInt(0));
-  const { wallets, ready } = useWallets();
+  const { wallet: embeddedWallet, isReady } = useEmbeddedWallet();
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const contractAddress = process.env
     .NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
-
-  const embeddedWallet = useMemo(
-    () => wallets.find((w) => w.walletClientType === "privy"),
-    [wallets]
-  );
 
   const readCounter = async (client: ReturnType<typeof createPublicClient>) => {
     if (!contractAddress) return;
@@ -36,7 +31,7 @@ export default function Counter() {
   };
 
   useEffect(() => {
-    if (!ready || !embeddedWallet) return;
+    if (!isReady || !embeddedWallet) return;
 
     let client: ReturnType<typeof createPublicClient>;
     const defaultChain = getDefaultChain();
@@ -74,7 +69,7 @@ export default function Counter() {
         unsubscribeRef.current = null;
       }
     };
-  }, [ready, embeddedWallet, contractAddress]);
+  }, [isReady, embeddedWallet, contractAddress]);
 
   const handleIncrement = () => {
     console.log("Increment clicked");
@@ -84,7 +79,7 @@ export default function Counter() {
     console.log("Decrement clicked");
   };
 
-  if (!ready) return <div>Loading...</div>;
+  if (!isReady) return <div>Loading...</div>;
   if (!embeddedWallet) return <div>No embedded wallet connected</div>;
 
   return (

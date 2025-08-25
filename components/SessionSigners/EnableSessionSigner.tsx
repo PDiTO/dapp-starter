@@ -1,26 +1,24 @@
 "use client";
 
+// This component is used to enable the session signer for the wallet
+
 import { useState } from "react";
-import { useSessionSigners, WalletWithMetadata } from "@privy-io/react-auth";
+import { useSessionSigners } from "@privy-io/react-auth";
 import { Button } from "@/components/ui/button";
+import { useEmbeddedWallet } from "@/hooks/useEmbeddedWallet";
 
-interface EnableSessionSignerProps {
-  wallet: WalletWithMetadata;
-}
-
-export default function EnableSessionSigner({
-  wallet,
-}: EnableSessionSignerProps) {
+export default function EnableSessionSigner() {
+  const { walletMetadata, isDelegated } = useEmbeddedWallet();
   const { addSessionSigners } = useSessionSigners();
   const [isLoading, setIsLoading] = useState(false);
 
-  const isDelegated = wallet.delegated === true;
-
   const handleEnableSessionSigner = async () => {
+    if (!walletMetadata) return;
+
     setIsLoading(true);
     try {
       await addSessionSigners({
-        address: wallet.address,
+        address: walletMetadata.address,
         signers: [
           {
             signerId: process.env.NEXT_PUBLIC_PRIVY_SESSION_SIGNER_ID!,
