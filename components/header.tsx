@@ -4,6 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { Button } from "@/components/ui/button";
 import SessionSignerStatus from "@/components/SessionSigners/SessionSignerStatus";
 import WalletDropdown from "@/components/WalletDropdown";
+import WalletBalance from "@/components/WalletBalance";
 
 export default function Header() {
   const { ready: privyReady, login, authenticated } = usePrivy();
@@ -14,6 +15,7 @@ export default function Header() {
       <div className="flex items-center gap-4">
         {privyReady && authenticated && (
           <>
+            <WalletBalance />
             <SessionSignerStatus />
             <WalletDropdown />
           </>
