@@ -3,7 +3,6 @@
 import { usePrivy } from "@privy-io/react-auth";
 
 import Counter from "@/components/Counter";
-import SessionSigners from "@/components/SessionSigners/SessionSigners";
 
 export default function Home() {
   const { ready: privyReady, authenticated } = usePrivy();
