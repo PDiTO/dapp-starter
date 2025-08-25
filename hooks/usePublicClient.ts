@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createPublicClient, custom, PublicClient } from "viem";
 import { useEmbeddedWallet } from "@/hooks/useEmbeddedWallet";
 import { getDefaultChain } from "@/lib/chains";
