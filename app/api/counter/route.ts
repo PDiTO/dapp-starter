@@ -16,8 +16,6 @@ const privy = new PrivyClient(
 );
 
 export async function POST(request: NextRequest) {
-  const requestStart = Date.now();
-
   try {
     // Parse request body
     const { action, walletId, contractAddress } = await request.json();
