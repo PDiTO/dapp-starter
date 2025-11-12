@@ -2,7 +2,8 @@ Full‑stack dapp starter using Privy with session signers.
 
 ## Tech Stack
 
-- **Next.js 15** – App Router
+- **Next.js 16** – App Router
+- **React 19** – Latest React version
 - **Tailwind CSS v4** – Utility‑first styling
 - **shadcn/ui** – Headless UI primitives and styles
 - **Lucide Icons** – Icon set
@@ -11,7 +12,7 @@ Full‑stack dapp starter using Privy with session signers.
 
 ## Prerequisites
 
-- Node.js 18.17+ (recommended 20+)
+- Node.js 22 LTS
 - pnpm (or npm/yarn; commands below use pnpm)
 
 ## Features
