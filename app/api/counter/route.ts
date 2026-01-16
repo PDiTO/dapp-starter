@@ -1,19 +1,15 @@
+// API route for counter contract transactions using Privy's session signer
 import { NextRequest, NextResponse } from "next/server";
-import { PrivyClient } from "@privy-io/server-auth";
+import { PrivyClient } from "@privy-io/node";
 import { encodeFunctionData } from "viem";
 import { counterAbi } from "@/lib/counterAbi";
 import { getDefaultChain } from "@/lib/chains";
 
-// Initialize Privy client
-const privy = new PrivyClient(
-  process.env.NEXT_PUBLIC_PRIVY_APP_ID!,
-  process.env.PRIVY_APP_SECRET!,
-  {
-    walletApi: {
-      authorizationPrivateKey: process.env.PRIVY_SESSION_SIGNER_PRIVATE_KEY!,
-    },
-  }
-);
+// Initialize Privy client (migrated from @privy-io/server-auth to @privy-io/node)
+const privy = new PrivyClient({
+  appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID!,
+  appSecret: process.env.PRIVY_APP_SECRET!,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,9 +29,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if session signer is configured
-    if (!process.env.NEXT_PUBLIC_PRIVY_SESSION_SIGNER_ID) {
+    if (!process.env.PRIVY_SESSION_SIGNER_PRIVATE_KEY) {
       return NextResponse.json(
-        { message: "Session signer not configured" },
+        { message: "Session signer private key not configured" },
         { status: 500 }
       );
     }
@@ -50,16 +46,19 @@ export async function POST(request: NextRequest) {
     const defaultChain = getDefaultChain();
     const caip2 = `eip155:${defaultChain.id}` as `eip155:${string}`;
 
-    // Send transaction using Privy's server SDK
-    const response = await privy.walletApi.ethereum.sendTransaction({
-      walletId,
+    // Send transaction using Privy's new Node SDK API
+    const response = await privy.wallets().ethereum().sendTransaction(walletId, {
       caip2,
-      transaction: {
-        to: contractAddress,
-        data,
-        chainId: defaultChain.id,
+      params: {
+        transaction: {
+          to: contractAddress,
+          data,
+          value: "0x0",
+        },
       },
-      // sponsor: true, // Uncomment if you have gas sponsorship configured
+      authorization_context: {
+        authorization_private_keys: [process.env.PRIVY_SESSION_SIGNER_PRIVATE_KEY],
+      },
     });
 
     return NextResponse.json({
